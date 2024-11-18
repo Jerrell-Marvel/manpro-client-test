@@ -58,6 +58,8 @@ export default function Register() {
   }, [selectedKecamatan]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     console.log({
       email,
       noHp,
@@ -66,7 +68,14 @@ export default function Register() {
       selectedKecamatan,
       selectedKelurahan,
     });
-    e.preventDefault();
+
+    const { data } = await axios.post("http://localhost:5000/api/register", {
+      noHp,
+      alamat,
+      email,
+      kelId: selectedKelurahan,
+      password,
+    });
   };
 
   return (
