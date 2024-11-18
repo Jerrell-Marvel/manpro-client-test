@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 // import { useRouter } from "next/router=";
 import { useSearchParams, useRouter } from "next/navigation";
+import { getToken } from "@/utils/getToken";
 
 type TransaksiSampah = {
   sampah_id: number;
@@ -38,11 +39,9 @@ export default function Transaksi() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(tipeTransaksi);
-      const token = localStorage.getItem("token");
       const { data } = await axios.get<Transaksi[]>("http://localhost:5000/api/transaksi/all", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
         params: {
           tipe_transaksi: tipeTransaksi,
@@ -67,6 +66,24 @@ export default function Transaksi() {
       currentParams.delete("tipe");
     }
     router.push(`?${currentParams.toString()}`);
+  };
+
+  const handlePindahBtnClick = async (transaksiId: number) => {
+    await axios.patch(
+      `http://localhost:5000/api/transaksi/${transaksiId}`,
+      {
+        tipeTransaksi: "keluar",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+
+    const newTransaksi = transaksi?.filter((t) => t.transaksi_id != transaksiId);
+
+    setTransaksi(newTransaksi);
   };
 
   return (
@@ -113,8 +130,17 @@ export default function Transaksi() {
                   </div>
                 );
               })}
+
+              <button
+                onClick={() => {
+                  handlePindahBtnClick(t.transaksi_id);
+                }}
+              >
+                Pindahkan ke transaksi keluar
+              </button>
             </div>
 
+            <br />
             <br />
           </>
         );
