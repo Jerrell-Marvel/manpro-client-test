@@ -1,5 +1,6 @@
 "use client";
 
+import { getToken } from "@/utils/getToken";
 import axios from "axios";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -20,7 +21,11 @@ function PenggunaPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get<Pengguna[]>("http://localhost:5000/api/users");
+      const { data } = await axios.get<Pengguna[]>("http://localhost:5000/api/users", {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
 
       setPenggunaList(data);
     };
