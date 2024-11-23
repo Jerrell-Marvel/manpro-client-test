@@ -84,82 +84,106 @@ function CreateSampah() {
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        handleSubmit(e);
-      }}
-    >
-      <label htmlFor="nama">Nama Sampah</label>
-      <input
-        id="nama"
-        type="text"
-        value={namaSampah}
-        onChange={(e) => {
-          setNamaSampah(e.target.value);
+    <>
+      <header className="flex justify-between items-center mb-2">
+        <h1 className="text-3xl font-bold">Ubah Data Sampah</h1>
+      </header>
+
+      <form
+        onSubmit={(e) => {
+          handleSubmit(e);
         }}
-      />
-      <br />
-
-      <label htmlFor="harga">Harga :</label>
-      <input
-        id="harga"
-        type="number"
-        value={harga}
-        onChange={(e) => {
-          setHarga(Number(e.target.value));
-        }}
-      />
-
-      <label htmlFor="gambar">Gambar Sampah</label>
-      <input
-        type="file"
-        id="gambar"
-        onChange={handleFileChange}
-      />
-
-      <label htmlFor="jenis">Jenis Sampah : </label>
-      <select
-        name="jenis"
-        id="jenis"
-        value={selectedJenis}
-        onChange={(e) => setSelectedJenis(Number(e.target.value))}
+        className="flex flex-col gap-4"
       >
-        {jenisSampah?.map((jenis) => {
-          return (
-            <option
-              value={jenis.jenis_sampah_id}
-              key={jenis.jenis_sampah_id}
-            >
-              {jenis.nama_jenis_sampah}
-            </option>
-          );
-        })}
-      </select>
+        <div>
+          <label htmlFor="nama">Nama Sampah</label>
+          <input
+            id="nama"
+            type="text"
+            value={namaSampah}
+            onChange={(e) => {
+              setNamaSampah(e.target.value);
+            }}
+            className="inp"
+            placeholder="Masukan nama sampah"
+          />
+        </div>
 
-      <br />
-      <br />
+        <div>
+          <label htmlFor="harga">Harga :</label>
+          <input
+            id="harga"
+            type="number"
+            value={harga}
+            onChange={(e) => {
+              setHarga(Number(e.target.value));
+            }}
+            className="inp"
+          />
+        </div>
 
-      <label htmlFor="suk">SUK Sampah : </label>
-      <select
-        name="suk"
-        id="suk"
-        value={selectedSuk}
-        onChange={(e) => setSelectedSuk(Number(e.target.value))}
-      >
-        {suk?.map((s) => {
-          return (
-            <option
-              value={s.suk_id}
-              key={s.suk_id}
-            >
-              {s.nama_suk}
-            </option>
-          );
-        })}
-      </select>
+        <div>
+          <label htmlFor="gambar">Gambar Sampah</label>
+          <input
+            type="file"
+            id="gambar"
+            onChange={handleFileChange}
+            className="inp"
+          />
+        </div>
 
-      <button type="submit">Sambit</button>
-    </form>
+        <div>
+          <label htmlFor="jenis">Jenis Sampah : </label>
+          <select
+            name="jenis"
+            id="jenis"
+            value={selectedJenis}
+            onChange={(e) => setSelectedJenis(Number(e.target.value))}
+            className="inp"
+          >
+            {jenisSampah?.map((jenis) => {
+              return (
+                <option
+                  value={jenis.jenis_sampah_id}
+                  key={jenis.jenis_sampah_id}
+                >
+                  {jenis.nama_jenis_sampah}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="suk">SUK Sampah : </label>
+          <select
+            name="suk"
+            id="suk"
+            value={selectedSuk}
+            onChange={(e) => setSelectedSuk(Number(e.target.value))}
+            className="inp"
+          >
+            {suk?.map((s) => {
+              return (
+                <option
+                  value={s.suk_id}
+                  key={s.suk_id}
+                >
+                  {s.nama_suk}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="btn self-end"
+        >
+          Sambit
+        </button>
+      </form>
+    </>
   );
 }
 

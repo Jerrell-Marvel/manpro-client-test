@@ -21,8 +21,17 @@ body {
 }
 
 @layer base {
-  input {
+  input,
+  select {
     @apply bg-slate-200;
+  }
+
+  select {
+    @apply !p-3 !block;
+  }
+
+  option {
+    @apply bg-white;
   }
 }
 
@@ -35,6 +44,10 @@ body {
 
   .btn {
     @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-fit;
+  }
+
+  .inp {
+    @apply w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300 mt-2;
   }
 }
 
