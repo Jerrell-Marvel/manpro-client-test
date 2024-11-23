@@ -65,7 +65,7 @@ function PenggunaPage() {
                 <td className="p-3">
                   <div className="flex space-x-2">
                     <Link
-                      href={`/admin/sampah/ubah/${pengguna.pengguna_id}`}
+                      href={`/admin/member/ubah/${pengguna.pengguna_id}`}
                       className="text-blue-500 hover:text-blue-700"
                     >
                       Edit

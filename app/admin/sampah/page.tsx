@@ -43,7 +43,7 @@ const SampahPage = () => {
         <h1 className="text-3xl font-bold">Manajemen Jenis Sampah</h1>
         <Link
           className="btn"
-          href="/admin/sampah/tambah"
+          href="/admin/tambah"
         >
           Tambahkan Jenis Sampah Baru
         </Link>
