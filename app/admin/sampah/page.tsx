@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { getToken } from "@/utils/getToken";
 
 type Sampah = {
   sampah_id: number;
@@ -24,6 +25,17 @@ const SampahPage = () => {
     };
     fetchData();
   }, []);
+
+  const handleDeleteClick = async (sampahId: number) => {
+    const { data } = await axios.delete(`http://localhost:5000/api/sampah/${sampahId}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    const newSampahList = sampahList?.filter((sampah) => sampah.sampah_id != sampahId);
+    setSampahList(newSampahList);
+  };
 
   return (
     <>
@@ -60,7 +72,14 @@ const SampahPage = () => {
                       >
                         Edit
                       </Link>
-                      <button className="text-red-500 hover:text-red-700">Hapus</button>
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={(e) => {
+                          handleDeleteClick(sampah.sampah_id);
+                        }}
+                      >
+                        Hapus
+                      </button>
                     </div>
                   </td>
                 </tr>
