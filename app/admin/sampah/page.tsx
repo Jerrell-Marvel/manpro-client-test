@@ -41,7 +41,12 @@ const SampahPage = () => {
     <>
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manajemen Jenis Sampah</h1>
-        <button className="btn">Tambahkan Jenis Sampah Baru</button>
+        <Link
+          className="btn"
+          href="/admin/sampah/tambah"
+        >
+          Tambahkan Jenis Sampah Baru
+        </Link>
       </header>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
