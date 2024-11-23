@@ -38,6 +38,8 @@ export default function TransaksiMasuk() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [startDate, setStartDate] = useState<string | null>(searchParams.get("start"));
+  const [endDate, setEndDate] = useState<string | null>(searchParams.get("end"));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,25 +47,31 @@ export default function TransaksiMasuk() {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
+        params: {
+          start: startDate,
+          end: endDate,
+        },
       });
 
       setTransaksi(data);
     };
 
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
-  //   const updateQueryParam = (newParam: string) => {
-  //     setTipeTransaksi(newParam);
+  const updateQueryParam = (params: { start?: string; end?: string }) => {
+    const currentParams = new URLSearchParams(searchParams);
+    if (params.start) {
+      currentParams.set("start", params.start);
+    }
+    if (params.end) {
+      currentParams.set("end", params.end);
+    }
 
-  //     const currentParams = new URLSearchParams(searchParams);
-  //     if (newParam) {
-  //       currentParams.set("tipe", newParam);
-  //     } else {
-  //       currentParams.delete("tipe");
-  //     }
-  //     router.push(`?${currentParams.toString()}`);
-  //   };
+    router.push(`?${currentParams.toString()}`);
+
+    console.log("HEREREHERHEH");
+  };
 
   //   const handlePindahBtnClick = async (transaksiId: number) => {
   //     await axios.patch(
@@ -93,6 +101,7 @@ export default function TransaksiMasuk() {
 
   return (
     <>
+      {/* START MODAL */}
       {selectedTransaksiSampah ? (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -135,12 +144,39 @@ export default function TransaksiMasuk() {
           </div>
         </>
       ) : null}
+      {/* END MODAL */}
 
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Transaksi Setoran Sampah</h1>
       </header>
 
       <div className="bg-white shadow-md rounded-lg mt-6">
+        <div className="flex gap-4 mb-6 items-center">
+          <input
+            type="date"
+            id="date-start"
+            value={startDate || ""}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              updateQueryParam({ start: e.target.value });
+            }}
+            className="p-1"
+          />
+          <p>Sampai</p>
+          {/* <label htmlFor="date-end">Tanggal Selesai</label> */}
+          <input
+            type="date"
+            id="date-end"
+            value={endDate || ""}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              updateQueryParam({ end: e.target.value });
+            }}
+            className="p-1"
+          />
+        </div>
+        {/* <label htmlFor="date-start">Tanggal Mulai</label> */}
+
         <table className="w-full">
           <thead className="bg-gray-200">
             <tr>
