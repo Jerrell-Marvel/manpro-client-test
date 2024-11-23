@@ -9,9 +9,6 @@ type Sampah = {
 };
 
 export default async function Home() {
-  const data = await fetch("http://localhost:5000/api/sampah");
-  const sampahList = (await data.json()) as Sampah[];
-
   return (
     <>
       <header className="bg-green-600 text-white py-6">
