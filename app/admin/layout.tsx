@@ -53,8 +53,7 @@ export default function adminLayout({
           </ul>
         </nav>
       </aside>
-
-      {children}
+      <main className="p-6 w-full">{children}</main>
     </div>
   );
 }

@@ -20,14 +20,22 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-input {
-  @apply bg-slate-200;
+@layer base {
+  input {
+    @apply bg-slate-200;
+  }
 }
 
-.hero-bg {
-  background-image: url("https://images.unsplash.com/photo-1606037150583-fb842a55bae7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
-  background-size: cover;
-  background-position: center;
+@layer components {
+  .hero-bg {
+    background-image: url("https://images.unsplash.com/photo-1606037150583-fb842a55bae7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-size: cover;
+    background-position: center;
+  }
+
+  .btn {
+    @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-fit;
+  }
 }
 
 @layer utilities {

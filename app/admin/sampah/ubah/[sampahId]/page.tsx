@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { getToken } from "@/utils/getToken";
+import { redirect, useRouter } from "next/navigation";
+import { revalidatePath } from "next/cache";
 type UpdateSampahProps = {
   params: {
     sampahId: string;
@@ -22,13 +24,12 @@ type Sampah = {
   harga_sampah: number;
 };
 function UpdateSampahPage({ params }: UpdateSampahProps) {
-  const [sampah, setSampah] = useState<Sampah>();
   const [nama, setNama] = useState<string>("");
   const [harga, setHarga] = useState<number>();
+  const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get<Sampah>(`http://localhost:5000/api/sampah/${params.sampahId}`);
-      setSampah(data);
       setNama(data.nama_sampah);
       setHarga(data.harga_sampah);
     };
@@ -45,36 +46,57 @@ function UpdateSampahPage({ params }: UpdateSampahProps) {
         Authorization: `Bearer ${getToken()}`,
       },
     });
+
+    router.push("/admin/sampah");
   };
   return (
-    <div>
-      <p>Sampah Id : {params.sampahId}</p>
+    <>
+      <header className="flex justify-between items-center mb-2">
+        <h1 className="text-3xl font-bold">Ubah Data Sampah</h1>
+      </header>
+
+      <p className="text-slate-400">Sampah Id : {params.sampahId}</p>
+      <div className="h-[1px] bg-slate-400 w-full"></div>
       <form
         onSubmit={(e) => {
           handleSubmit(e);
         }}
+        className="flex flex-col gap-4 mt-4"
       >
-        <label htmlFor="nama">Nama</label>
-        <input
-          type="text"
-          id="nama"
-          value={nama}
-          onChange={(e) => {
-            setNama(e.target.value);
-          }}
-        />
-        <label htmlFor="harga">Harga</label>
-        <input
-          type="number"
-          id="harga"
-          value={harga}
-          onChange={(e) => {
-            setHarga(Number(e.target.value));
-          }}
-        />
-        <button type="submit">Submit</button>
+        <div>
+          <label htmlFor="nama">Nama</label>
+          <input
+            type="text"
+            id="nama"
+            value={nama}
+            onChange={(e) => {
+              setNama(e.target.value);
+            }}
+            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300 mt-2"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="harga">Harga</label>
+          <input
+            type="number"
+            id="harga"
+            value={harga}
+            onChange={(e) => {
+              setHarga(Number(e.target.value));
+            }}
+            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300 mt-2"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="btn self-end"
+        >
+          Simpan
+        </button>
       </form>
-    </div>
+    </>
   );
 }
 export default UpdateSampahPage;
