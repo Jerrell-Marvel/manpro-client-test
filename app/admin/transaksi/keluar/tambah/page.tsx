@@ -133,12 +133,8 @@ function TransaksiKeluarPage() {
                         setIsSampahModalOpen(false);
                         const newSampah = [...sampah].filter((samp) => samp.sampah_id !== s.sampah_id);
                         setSampah(newSampah);
-                        if (searchQuery === "") {
-                          filterSampah("", newSampah);
-                        } else {
-                          setSearchQuery("");
-                          filterSampah("", newSampah);
-                        }
+                        filterSampah("", newSampah);
+                        setSearchQuery("");
 
                         const newTransaksi: TransaksiItem[] = [{ jumlahSampah: 0, kuantitasInventory: s.kuantitas, sampahId: s.sampah_id, nama: s.nama_sampah }, ...transaksi];
                         setTransaksi(newTransaksi);

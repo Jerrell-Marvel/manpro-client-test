@@ -110,11 +110,11 @@ function TambahTransaksiPage() {
     setFilteredSampah(filtered);
   };
 
-  useEffect(() => {
-    if (sampahSearchQuery !== undefined) {
-      filterSampah(sampahSearchQuery, sampah);
-    }
-  }, [sampahSearchQuery]);
+  // useEffect(() => {
+  //   if (sampahSearchQuery !== undefined) {
+  //     filterSampah(sampahSearchQuery, sampah);
+  //   }
+  // }, [sampahSearchQuery]);
 
   const findJumlahSampahInInventory = (sampahId: number) => {
     return inventory.find((i) => i.sampah_id == sampahId)?.kuantitas;
@@ -174,7 +174,10 @@ function TambahTransaksiPage() {
                 <input
                   type="text"
                   value={sampahSearchQuery}
-                  onChange={(e) => setSampahSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSampahSearchQuery(e.target.value);
+                    filterSampah(e.target.value, sampah);
+                  }}
                   className="inp"
                   placeholder="cari sampah"
                 />
@@ -190,11 +193,10 @@ function TambahTransaksiPage() {
                         setIsSampahModalOpen(false);
                         const newSampah = [...sampah].filter((samp) => samp.sampah_id !== s.sampah_id);
                         setSampah(newSampah);
-                        if (sampahSearchQuery === "") {
-                          filterSampah("", newSampah);
-                        } else {
-                          setSampahSearchQuery("");
-                        }
+                        filterSampah("", newSampah);
+                        setSampahSearchQuery("");
+
+                        filterSampah("", newSampah);
 
                         const newTransaksi = [{ sampahId: s.sampah_id, jumlahSampah: 0, namaSampah: s.nama_sampah }, ...transaksi];
                         setTransaksi(newTransaksi);
