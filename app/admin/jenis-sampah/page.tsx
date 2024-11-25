@@ -10,74 +10,93 @@ type JenisSampah = {
 };
 
 export default function JenisSampahPage() {
-  const [jenisSampah, setJenisSampah] = useState<JenisSampah[]>();
+  const [jenisSampah, setJenisSampah] = useState<JenisSampah[]>([]);
   const [namaJenis, setNamaJenis] = useState<string>("");
 
+  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get("http://localhost:5000/api/jenis-sampah");
-
-      setJenisSampah(data);
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/jenis-sampah");
+        setJenisSampah(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
     fetchData();
   }, []);
 
+  // Handle form submission
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { data } = await axios.post<{ suk_id: number }>(
-      "http://localhost:5000/api/jenis-sampah",
-      {
-        namaJenisSampah: namaJenis,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      }
-    );
-
-    if (jenisSampah) {
-      const newSuk: JenisSampah[] = [
+    try {
+      const { data } = await axios.post<{ suk_id: number }>(
+        "http://localhost:5000/api/jenis-sampah",
+        { namaJenisSampah: namaJenis },
         {
-          nama_jenis_sampah: namaJenis,
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      // Menambah item baru
+      setJenisSampah((prev) => [
+        {
           jenis_sampah_id: data.suk_id,
+          nama_jenis_sampah: namaJenis,
           is_active: true,
         },
-        ...jenisSampah,
-      ];
+        ...prev,
+      ]);
 
-      setJenisSampah(newSuk);
+      // Clear input field
+      setNamaJenis("");
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-
-    setNamaJenis("");
   };
 
   return (
     <div>
-      <form
-        action=""
-        onSubmit={handleFormSubmit}
-      >
-        <label htmlFor="nama-suk">Tambah Jenis</label>
-        <input
-          type="text"
-          id="nama-suk"
-          value={namaJenis}
-          onChange={(e) => {
-            setNamaJenis(e.target.value);
-          }}
-        />
-
-        <button type="submit">Save</button>
+      <form onSubmit={handleFormSubmit} className="mb-6">
+        <label
+          htmlFor="nama-suk"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Tambah Jenis Sampah
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            id="nama-suk"
+            value={namaJenis}
+            onChange={(e) => setNamaJenis(e.target.value)}
+            className="border border-gray-300 rounded p-2 flex-1"
+            placeholder="Masukkan nama jenis sampah"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+          >
+            Save
+          </button>
+        </div>
       </form>
-
-      <h3>Jenis Tersedia</h3>
-
-      {jenisSampah?.map((js) => {
-        return <div key={js.jenis_sampah_id}>{js.nama_jenis_sampah}</div>;
-      })}
+      <h3 className="text-lg font-semibold mb-4">Jenis Sampah Tersedia</h3>
+      <div className="space-y-2">
+        {jenisSampah.map((js) => (
+          <div
+            key={js.jenis_sampah_id}
+            className="p-3 border rounded shadow-sm bg-white hover:shadow-md"
+          >
+            {js.nama_jenis_sampah}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
