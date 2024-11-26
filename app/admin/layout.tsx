@@ -25,6 +25,14 @@ export default function adminLayout({
             <li>
               <Link
                 className="block py-2 hover:bg-green-500 rounded"
+                href="/admin/sampah"
+              >
+                Manajemen Sampah
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="block py-2 hover:bg-green-500 rounded"
                 href="/admin/jenis-sampah"
               >
                 Manajemen Jenis Sampah
@@ -49,17 +57,17 @@ export default function adminLayout({
             <li>
               <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="/admin/transaksi"
+                href="/admin/transaksi/masuk"
               >
-                Transaksi Setoran
+                Transaksi Masuk Setoran
               </Link>
             </li>
             <li>
               <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="/admin/pelaporan"
+                href="/admin/transaksi/keluar"
               >
-                Pelaporan
+                Transaksi Keluar
               </Link>
             </li>
           </ul>

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-// import { useRouter } from "next/router=";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getToken } from "@/utils/getToken";
 import { formatToRupiah } from "@/utils/formatter";
+import { PlusCircle, Eye, CalendarRange } from "lucide-react";
 
 import Line from "@/app/components/Line";
 
@@ -33,7 +33,6 @@ type TransaksiKeluar = {
 
 export default function TransaksiKeluar() {
   const [transaksi, setTransaksi] = useState<TransaksiKeluar[]>();
-
   const [selectedTransaksiSampah, setSelectedTransaksiSampah] = useState<TransaksiSampah[]>();
 
   const router = useRouter();
@@ -69,27 +68,7 @@ export default function TransaksiKeluar() {
     }
 
     router.push(`?${currentParams.toString()}`);
-
-    console.log("HEREREHERHEH");
   };
-
-  //   const handlePindahBtnClick = async (transaksiId: number) => {
-  //     await axios.patch(
-  //       `http://localhost:5000/api/transaksi/${transaksiId}`,
-  //       {
-  //         tipeTransaksi: "keluar",
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${getToken()}`,
-  //         },
-  //       }
-  //     );
-
-  // const newTransaksi = transaksi?.filter((t) => t.transaksi_id != transaksiId);
-
-  // setTransaksi(newTransaksi);
-  //   };
 
   const calculateTotal = (transaksiSampah: TransaksiSampah[]): number => {
     let total = 0;
@@ -100,118 +79,128 @@ export default function TransaksiKeluar() {
   };
 
   return (
-    <>
+    <div className="container mx-auto px-4 py-6">
       {/* START MODAL */}
-      {selectedTransaksiSampah ? (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="max-h-[80vh] w-1/2 bg-white rounded-lg overflow-y-scroll relative overflow-x-hidden pb-6">
-              <div className="sticky top-0 bg-white p-6 flex justify-between items-center">
-                <h2 className="text-2xl">Detail transaksi</h2>
+      {selectedTransaksiSampah && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div className="bg-gray-100 p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-semibold text-gray-800">Detail Transaksi</h2>
+              <button 
+                onClick={() => setSelectedTransaksiSampah(undefined)} 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
 
-                <button onClick={() => setSelectedTransaksiSampah(undefined)}>X</button>
-              </div>
+            <Line />
 
-              <Line />
-
-              <ul className="p-6 flex flex-col gap-4">
-                {selectedTransaksiSampah.map((sampah) => {
-                  return (
-                    <li
-                      key={sampah.sampah_id}
-                      className="rounded-md p-4 bg-slate-100"
-                    >
-                      <div className="grid grid-cols-2">
-                        <div>
-                          <p>{sampah.nama_sampah}</p>
-                          <p>{sampah.nama_suk}</p>
-                          <p>x {sampah.jumlah_sampah}</p>
-                        </div>
-                        <div>
-                          <p>Subtotal : </p>
-                          <p>{sampah.harga_sampah * sampah.jumlah_sampah}</p>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
+            <div className="p-6">
+              <ul className="space-y-4 mb-6">
+                {selectedTransaksiSampah.map((sampah) => (
+                  <li
+                    key={sampah.sampah_id}
+                    className="bg-gray-50 rounded-lg p-4 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-800">{sampah.nama_sampah}</p>
+                      <p className="text-gray-600">{sampah.nama_suk}</p>
+                      <p className="text-gray-600">Jumlah: {sampah.jumlah_sampah}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-gray-600">Subtotal</p>
+                      <p className="font-semibold">{formatToRupiah(sampah.harga_sampah * sampah.jumlah_sampah)}</p>
+                    </div>
+                  </li>
+                ))}
               </ul>
 
-              <div className="px-10 grid grid-cols-2">
-                <p>Total Transaksi : </p>
-                <p>{calculateTotal(selectedTransaksiSampah)}</p>
+              <div className="flex justify-between border-t pt-4 font-semibold">
+                <p>Total Transaksi</p>
+                <p>{formatToRupiah(calculateTotal(selectedTransaksiSampah))}</p>
               </div>
             </div>
           </div>
-        </>
-      ) : null}
+        </div>
+      )}
       {/* END MODAL */}
 
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Transaksi Setoran Sampah</h1>
-      </header>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Transaksi Setoran Sampah Keluar</h1>
+        <button 
+          onClick={() => router.push("/admin/transaksi/keluar/tambah")}
+          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          <PlusCircle size={20} />
+          Tambah Transaksi
+        </button>
+      </div>
 
-      <div className="bg-white shadow-md rounded-lg mt-6">
-        <div className="flex gap-4 mb-6 items-center">
-          <input
-            type="date"
-            id="date-start"
-            value={startDate || ""}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              updateQueryParam({ start: e.target.value });
-            }}
-            className="p-1"
-          />
-          <p>Sampai</p>
-          {/* <label htmlFor="date-end">Tanggal Selesai</label> */}
-          <input
-            type="date"
-            id="date-end"
-            value={endDate || ""}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              updateQueryParam({ end: e.target.value });
-            }}
-            className="p-1"
-          />
+      <div className="bg-white shadow-md rounded-lg">
+        <div className="p-6 bg-gray-50 rounded-t-lg">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-white border rounded-lg p-2">
+              <CalendarRange size={20} className="text-gray-500" />
+              <input
+                type="date"
+                id="date-start"
+                value={startDate || ""}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  updateQueryParam({ start: e.target.value });
+                }}
+                className="text-gray-700 focus:outline-none"
+              />
+            </div>
+            <p className="text-gray-600">Sampai</p>
+            <div className="flex items-center gap-2 bg-white border rounded-lg p-2">
+              <CalendarRange size={20} className="text-gray-500" />
+              <input
+                type="date"
+                id="date-end"
+                value={endDate || ""}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  updateQueryParam({ end: e.target.value });
+                }}
+                className="text-gray-700 focus:outline-none"
+              />
+            </div>
+          </div>
         </div>
-        {/* <label htmlFor="date-start">Tanggal Mulai</label> */}
 
         <table className="w-full">
-          <thead className="bg-gray-200">
+          <thead className="bg-gray-100 border-b">
             <tr>
-              <th className="p-3 text-left">ID Transaksi</th>
-              <th className="p-3 text-left">Nilai Total</th>
-              <th className="p-3 text-left">Tanggal</th>
-              <th className="p-3 text-left">Aksi</th>
+              {["ID Transaksi", "Pusat", "Nilai Total", "Tanggal", "Aksi"].map((header) => (
+                <th key={header} className="p-4 text-left text-gray-600 font-semibold">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {transaksi?.map((t) => {
-              return (
-                <>
-                  <tr className="border-b hover:bg-gray-100">
-                    <td className="p-3">{t.transaksi_keluar_id}</td>
-
-                    <td className="p-3">{formatToRupiah(calculateTotal(t.transaksiSampah))}</td>
-                    <td className="p-3">{t.tanggal}</td>
-
-                    <td className="p-3">
-                      <button
-                        className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-                        onClick={() => setSelectedTransaksiSampah(t.transaksiSampah)}
-                      >
-                        Detail
-                      </button>
-                    </td>
-                  </tr>
-                </>
-              );
-            })}
+            {transaksi?.map((t) => (
+              <tr key={t.transaksi_keluar_id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-4 text-gray-800">{t.transaksi_keluar_id}</td>
+                <td className="p-4 text-gray-800">{t.bs_pusat_id}</td>
+                <td className="p-4 font-semibold text-green-700">
+                  {formatToRupiah(calculateTotal(t.transaksiSampah))}
+                </td>
+                <td className="p-4 text-gray-600">{t.tanggal}</td>
+                <td className="p-4">
+                  <button
+                    onClick={() => setSelectedTransaksiSampah(t.transaksiSampah)}
+                    className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    <Eye size={16} />
+                    Detail
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

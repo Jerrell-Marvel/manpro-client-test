@@ -3,6 +3,7 @@
 import React, { use, useEffect, useState } from "react";
 import axios from "axios";
 import { getToken } from "@/utils/getToken";
+import { useRouter } from "next/navigation";
 
 type Suk = {
   suk_id: number;
@@ -17,6 +18,7 @@ type Jenis = {
 };
 
 function CreateSampah() {
+  const router = useRouter();
   //controlled input
   const [gambarSampah, setGambarSampah] = useState<string>("");
   const [namaSampah, setNamaSampah] = useState<string>("");
@@ -76,11 +78,23 @@ function CreateSampah() {
       formData.append("gambarSampah", file);
     }
 
-    const { data } = await axios.post("http://localhost:5000/api/sampah", formData, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/sampah", formData, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+
+      router.push("/admin/sampah/");
+    } catch (error) {
+
+      console.error("Submission failed", error);
+    }
+
+  };
+
+  const handleBack = () => {
+    router.push("/admin/sampah");
   };
 
   return (
@@ -176,12 +190,21 @@ function CreateSampah() {
           </select>
         </div>
 
-        <button
-          type="submit"
-          className="btn self-end"
-        >
-          Sambit
-        </button>
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="btn btn-secondary"
+          >
+            Kembali
+          </button>
+          <button
+            type="submit"
+            className="btn"
+          >
+            Sambit
+          </button>
+        </div>
       </form>
     </>
   );
