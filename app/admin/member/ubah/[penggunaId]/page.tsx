@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getToken } from "@/utils/getToken";
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 type Pengguna = {
   pengguna_id: number;
@@ -36,6 +38,7 @@ type Kelurahan = {
 };
 
 function UpdatePage({ params }: UpdatePenggunaProps) {
+  const router = useRouter();
   const [pengguna, setPengguna] = useState<Pengguna>({ pengguna_id: 0, password: "", no_hp: "", alamat: "", email: "", role: "", kel_id: 0, nama: "", kec_id: 0, nama_kec: "", nama_kel: "" });
 
   const [kecamatan, setKecamatan] = useState<Kecamatan[]>();
@@ -92,16 +95,34 @@ function UpdatePage({ params }: UpdatePenggunaProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { data } = await axios.patch(
-      `http://localhost:5000/api/users/${params.penggunaId}`,
-      { nama: pengguna.nama, noHp: pengguna.no_hp, alamat: pengguna.alamat, email: pengguna.email, kelurahanId: selectedKelurahan },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/users/${params.penggunaId}`,
+        { 
+          nama: pengguna.nama, 
+          noHp: pengguna.no_hp, 
+          alamat: pengguna.alamat, 
+          email: pengguna.email, 
+          kelurahanId: selectedKelurahan 
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      toast.success("User updated successfully");
+      
+      // Route to member page after successful update
+      router.push('/admin/member');
+    } catch (error) {
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user");
+    }
   };
+
+
 
   return (
     <>
