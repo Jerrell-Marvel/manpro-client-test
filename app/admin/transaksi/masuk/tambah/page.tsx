@@ -50,7 +50,7 @@ function TambahTransaksiPage() {
 
   const [transaksi, setTransaksi] = useState<{ sampahId: number; jumlahSampah: number; namaSampah: string }[]>([]);
 
-  const [inventory, setInventory] = useState<Inventory[]>([]);
+  // const [inventory, setInventory] = useState<Inventory[]>([]);
 
   // fetch from api
   useEffect(() => {
@@ -68,14 +68,6 @@ function TambahTransaksiPage() {
         const { data: dataSampah } = await axios.get<Sampah[]>("http://localhost:5000/api/sampah");
         setSampah(dataSampah);
         setFilteredSampah(dataSampah);
-
-        // Inventory
-        const { data: dataInventory } = await axios.get<Inventory[]>("http://localhost:5000/api/inventory", {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-        setInventory(dataInventory);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -115,10 +107,6 @@ function TambahTransaksiPage() {
   //     filterSampah(sampahSearchQuery, sampah);
   //   }
   // }, [sampahSearchQuery]);
-
-  const findJumlahSampahInInventory = (sampahId: number) => {
-    return inventory.find((i) => i.sampah_id == sampahId)?.kuantitas;
-  };
 
   const handleSubmit = async () => {
     const sendTransaksi = transaksi.map((t) => {
@@ -289,9 +277,9 @@ function TambahTransaksiPage() {
                       newTransaksi[i].jumlahSampah = Number(e.target.value);
                       setTransaksi(newTransaksi);
                     }}
-                    max={findJumlahSampahInInventory(t.sampahId)}
+                    // max={findJumlahSampahInInventory(t.sampahId)}
                   />
-                  <span>Tersedia : {findJumlahSampahInInventory(t.sampahId)}</span>
+                  {/* <span>Tersedia : {findJumlahSampahInInventory(t.sampahId)}</span> */}
                 </td>
               </tr>
             );

@@ -125,6 +125,7 @@ export default function TransaksiMasuk() {
                         <div>
                           <p>{sampah.nama_sampah}</p>
                           <p>{sampah.nama_suk}</p>
+                          <p>x{sampah.jumlah_sampah}</p>
                         </div>
                         <div>
                           <p>Subtotal : </p>

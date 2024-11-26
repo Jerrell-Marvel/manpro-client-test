@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export default function adminLayout({
   children,
@@ -6,6 +7,7 @@ export default function adminLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <Suspense>
     <div className="flex">
       {/* SIDEBAR */}
       <aside className="bg-green-600 text-white w-64 min-h-screen p-6">
@@ -65,5 +67,6 @@ export default function adminLayout({
       </aside>
       <main className="p-6 w-full">{children}</main>
     </div>
+    </Suspense>
   );
 }
