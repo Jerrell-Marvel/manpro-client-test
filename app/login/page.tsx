@@ -2,10 +2,13 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Router } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const router = useRouter();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -24,6 +27,8 @@ export default function Login() {
     });
 
     localStorage.setItem("token", data.token);
+
+    router.push('/admin');
   };
 
   return (
