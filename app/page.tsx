@@ -34,13 +34,13 @@ export default async function Home() {
               Kontak
             </a>
             <a
-              href="admin-login.html"
+              href="/admin"
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
             >
               Login sebagai Admin
             </a>
             <a
-              href="member-login.html"
+              href="/member"
               className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded"
             >
               Login sebagai Member

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-// import { useRouter } from "next/router=";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getToken } from "@/utils/getToken";
 
@@ -29,29 +28,30 @@ type Transaksi = {
 };
 
 export default function Transaksi() {
-  const [transaksi, setTransaksi] = useState<Transaksi[]>();
-
+  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
+  const [tipeTransaksi, setTipeTransaksi] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialParam = searchParams.get("tipe") || "";
-  const [tipeTransaksi, setTipeTransaksi] = useState(initialParam);
+  useEffect(() => {
+    const initialParam = searchParams.get("tipe") || "";
+    setTipeTransaksi(initialParam);
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get<Transaksi[]>("http://localhost:5000/api/transaksi/all", {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-        params: {
-          tipe_transaksi: tipeTransaksi,
-        },
-      });
-
-      setTransaksi(data);
+      try {
+        const { data } = await axios.get<Transaksi[]>("http://localhost:5000/api/transaksi/all", {
+          headers: { Authorization: `Bearer ${getToken()}` },
+          params: { tipe_transaksi: tipeTransaksi },
+        });
+        setTransaksi(data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
     };
 
-    if (tipeTransaksi === "masuk" || tipeTransaksi === "keluar" || tipeTransaksi === "") {
+    if (["masuk", "keluar", ""].includes(tipeTransaksi)) {
       fetchData();
     }
   }, [tipeTransaksi]);
@@ -69,82 +69,76 @@ export default function Transaksi() {
   };
 
   const handlePindahBtnClick = async (transaksiId: number) => {
-    await axios.patch(
-      `http://localhost:5000/api/transaksi/${transaksiId}`,
-      {
-        tipeTransaksi: "keluar",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      }
-    );
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/transaksi/${transaksiId}`,
+        { tipeTransaksi: "keluar" },
+        {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        }
+      );
 
-    const newTransaksi = transaksi?.filter((t) => t.transaksi_id != transaksiId);
-
-    setTransaksi(newTransaksi);
+      setTransaksi((prev) => prev.filter((t) => t.transaksi_id !== transaksiId));
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+    }
   };
 
   return (
-    <>
-      <button
-        onClick={() => {
-          updateQueryParam("");
-        }}
-      >
-        Semua
-      </button>
+    <div className="p-4">
 
-      <button
-        onClick={() => {
-          updateQueryParam("masuk");
-        }}
-      >
-        Masuk
-      </button>
-      <button
-        onClick={() => {
-          updateQueryParam("keluar");
-        }}
-      >
-        Keluar
-      </button>
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => updateQueryParam("")}
+          className={`px-4 py-2 rounded ${
+            tipeTransaksi === "" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Semua
+        </button>
+        <button
+          onClick={() => updateQueryParam("masuk")}
+          className={`px-4 py-2 rounded ${
+            tipeTransaksi === "masuk" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Masuk
+        </button>
+        <button
+          onClick={() => updateQueryParam("keluar")}
+          className={`px-4 py-2 rounded ${
+            tipeTransaksi === "keluar" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Keluar
+        </button>
+      </div>
 
-      {transaksi?.map((t) => {
-        return (
-          <>
-            <div key={t.transaksi_id}>
-              <p>Id : {t.transaksi_id}</p>
-              <p>{t.tanggal}</p>
-              <p>Tipe : {t.tipe_transaksi}</p>
+      {transaksi.map((t) => (
+        <div key={t.transaksi_id} className="border p-4 rounded shadow-sm mb-4">
+          <p className="font-semibold">Id: {t.transaksi_id}</p>
+          <p>Tanggal: {t.tanggal}</p>
+          <p>Tipe: {t.tipe_transaksi}</p>
 
-              {t.transaksiSampah.map((ts, i) => {
-                return (
-                  <div key={ts.harga_id}>
-                    <p>{i + 1}.</p>
-                    <p>{ts.nama_sampah}</p>
-                    <p>{ts.jumlah_sampah}x</p>
-                    <p>Harga : {ts.harga_sampah}</p>
-                    <p>Total Harga : {ts.harga_sampah * ts.jumlah_sampah}</p>
-                  </div>
-                );
-              })}
+          <div className="mt-4 space-y-2">
+            {t.transaksiSampah.map((ts, i) => (
+              <div key={ts.harga_id} className="border-b pb-2">
+                <p>{i + 1}. {ts.nama_sampah}</p>
+                <p>Jumlah: {ts.jumlah_sampah}</p>
+                <p>Harga: {ts.harga_sampah}</p>
+                <p>Total: {ts.harga_sampah * ts.jumlah_sampah}</p>
+              </div>
+            ))}
+          </div>
 
-              <button
-                onClick={() => {
-                  handlePindahBtnClick(t.transaksi_id);
-                }}
-              >
-                Pindahkan ke transaksi keluar
-              </button>
-            </div>
-
-            <br />
-            <br />
-          </>
-        );
-      })}
-    </>
+          <button
+            onClick={() => handlePindahBtnClick(t.transaksi_id)}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
+          >
+            Pindahkan ke transaksi keluar
+          </button>
+        </div>
+      ))}
+    </div>
   );
 }

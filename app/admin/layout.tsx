@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function adminLayout({
   children,
 }: Readonly<{
@@ -11,44 +13,52 @@ export default function adminLayout({
         <nav>
           <ul className="space-y-4">
             <li>
-              <a
+              <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="dashboard.html"
+                href="/admin"
               >
                 Dashboard
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="manajemen-jenis-sampah.html"
+                href="/admin/jenis-sampah"
               >
                 Manajemen Jenis Sampah
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="manajemen-member.html"
+                href="/admin/suk"
+              >
+                Manajemen SUK
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="block py-2 hover:bg-green-500 rounded"
+                href="/admin/member"
               >
                 Manajemen Member
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="transaksi-setoran-sampah.html"
+                href="/admin/transaksi"
               >
                 Transaksi Setoran
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="block py-2 hover:bg-green-500 rounded"
-                href="pelaporan.html"
+                href="/admin/pelaporan"
               >
                 Pelaporan
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>
