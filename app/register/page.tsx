@@ -82,7 +82,7 @@ export default function Register() {
 
   return (
     <>
-      <div>
+      {/* <div>
         <button onClick={() => console.log(selectedKecamatan)}>click kec</button>
         <button onClick={() => console.log(selectedKelurahan)}>click kel</button>
         <form onSubmit={(e) => handleSubmit(e)}>
@@ -165,7 +165,7 @@ export default function Register() {
 
           <input type="submit" />
         </form>
-      </div>
+      </div> */}
 
       <div className="bg-gray-100 flex items-center justify-center min-h-screen">
         <div className="bg-white shadow-lg rounded-lg p-8 w-96 fade-in">
