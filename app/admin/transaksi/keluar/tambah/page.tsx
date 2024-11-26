@@ -1,8 +1,11 @@
 "use client";
-import Line from "@/app/components/Line";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getToken } from "@/utils/getToken";
+import { useRouter } from "next/navigation";
+import { PlusCircle, X, Search, Save } from "lucide-react";
+
+import Line from "@/app/components/Line";
 
 type Sampah = {
   sampah_id: number;
@@ -28,7 +31,8 @@ type TransaksiItem = {
   nama: string;
 };
 
-function TransaksiKeluarPage() {
+export default function TransaksiKeluarTambahPage() {
+  const router = useRouter();
   const [sampah, setSampah] = useState<Sampah[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredSampah, setFilteredSampah] = useState<Sampah[]>([]);
@@ -37,80 +41,162 @@ function TransaksiKeluarPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: dataSampah } = await axios.get<Sampah[]>("http://localhost:5000/api/sampah");
+      try {
+        const { data: dataSampah } = await axios.get<Sampah[]>("http://localhost:5000/api/sampah", {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
 
-      setSampah(dataSampah);
-      setFilteredSampah(dataSampah);
+        setSampah(dataSampah);
+        setFilteredSampah(dataSampah);
+      } catch (error) {
+        console.error("Error fetching sampah data:", error);
+        // TODO: Add proper error handling (e.g., toast notification)
+      }
     };
 
     fetchData();
   }, []);
 
-  const filterSampah = (sampahSearchQuery: string, sampah: Sampah[]) => {
-    const filtered = sampah.filter((s) => {
-      if (sampahSearchQuery === "") {
-        return true;
-      } else {
-        return s.nama_sampah.toLowerCase().includes(sampahSearchQuery.toLowerCase());
-      }
-    });
+  const filterSampah = (sampahSearchQuery: string, sampahList: Sampah[]) => {
+    const filtered = sampahList.filter((s) => 
+      sampahSearchQuery === "" || 
+      s.nama_sampah.toLowerCase().includes(sampahSearchQuery.toLowerCase())
+    );
 
     setFilteredSampah(filtered);
   };
 
   const handleSubmit = async () => {
-    const sendTransaksi = transaksi.map((t) => {
-      return { sampahId: t.sampahId, jumlahSampah: t.jumlahSampah };
-    });
+    try {
+      const sendTransaksi = transaksi.map((t) => ({
+        sampahId: t.sampahId, 
+        jumlahSampah: t.jumlahSampah
+      }));
 
-    const { data } = await axios.post(
-      "http://localhost:5000/api/transaksi/keluar",
-      {
-        bsPusatId: 2,
-        transaksiSampah: sendTransaksi,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
+      await axios.post(
+        "http://localhost:5000/api/transaksi/keluar",
+        {
+          bsPusatId: 2,
+          transaksiSampah: sendTransaksi,
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      // Redirect after successful submission
+      router.push("/admin/transaksi/keluar");
+    } catch (error) {
+      console.error("Error submitting transaksi:", error);
+      // TODO: Add proper error handling (e.g., toast notification)
+    }
   };
 
-  // useEffect(() => {
-  //   if (sampah) {
-  //     filterSampah(searchQuery, sampah);
-  //   }
-  // }, [searchQuery]);
+  const calculateTotal = () => {
+    return transaksi.reduce((total, item) => {
+      return total + (item.jumlahSampah || 0);
+    }, 0);
+  };
 
   return (
-    <div>
-      <header className="flex justify-between items-center mb-2">
-        <h1 className="text-3xl font-bold">Tambah Transaksi Keluar</h1>
-      </header>
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Tambah Transaksi Setoran Sampah Keluar</h1>
+        <button 
+          onClick={() => router.push("/admin/transaksi/keluar")}
+          className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+        >
+          Kembali
+        </button>
+      </div>
 
       <Line />
 
-      <button
-        className="btn"
-        onClick={() => setIsSampahModalOpen(true)}
-      >
-        Tambah Sampah
-      </button>
+      <div className="bg-white shadow-md rounded-lg">
+        <div className="p-6">
+          <button
+            onClick={() => setIsSampahModalOpen(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <PlusCircle size={20} />
+            Tambah Sampah
+          </button>
+        </div>
 
-      {isSampahModalOpen ? (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="max-h-[80vh] w-1/2 bg-white rounded-lg overflow-y-scroll relative overflow-x-hidden pb-6">
-              <div className="sticky top-0 bg-white p-6 flex justify-between items-center">
-                <h2 className="text-2xl">Pilih Sampah</h2>
+        <table className="w-full">
+          <thead className="bg-gray-100 border-b">
+            <tr>
+              <th className="p-4 text-left text-gray-600 font-semibold">ID Sampah</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Nama Sampah</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transaksi?.map((t, i) => (
+              <tr key={t.sampahId} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-4 text-gray-800">{t.sampahId}</td>
+                <td className="p-4 text-gray-800">{t.nama}</td>
+                <td className="p-4">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="number"
+                      value={t.jumlahSampah}
+                      onChange={(e) => {
+                        const newTransaksi = [...transaksi];
+                        newTransaksi[i].jumlahSampah = Number(e.target.value);
+                        setTransaksi(newTransaksi);
+                      }}
+                      max={t.kuantitasInventory}
+                      className="w-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                    <span className="text-gray-600">Tersedia: {t.kuantitasInventory}</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-                <button onClick={() => setIsSampahModalOpen(false)}>X</button>
-              </div>
+        {transaksi.length > 0 && (
+          <div className="p-6 border-t flex justify-between items-center">
+            <p className="font-semibold text-gray-800">Total Item</p>
+            <p className="font-bold text-green-700">{calculateTotal()}</p>
+          </div>
+        )}
 
-              <Line />
+        <div className="p-6 border-t">
+          <button
+            onClick={handleSubmit}
+            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Save size={20} />
+            Simpan Transaksi
+          </button>
+        </div>
+      </div>
 
-              <div className="p-6">
+      {/* Sampah Selection Modal */}
+      {isSampahModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div className="bg-gray-100 p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-semibold text-gray-800">Pilih Sampah</h2>
+              <button 
+                onClick={() => setIsSampahModalOpen(false)} 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <Line />
+
+            <div className="p-6">
+              <div className="relative mb-4">
                 <input
                   type="text"
                   value={searchQuery}
@@ -118,95 +204,50 @@ function TransaksiKeluarPage() {
                     setSearchQuery(e.target.value);
                     filterSampah(e.target.value, sampah);
                   }}
-                  className="inp"
-                  placeholder="cari sampah"
+                  className="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Cari sampah"
                 />
+                <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
 
-              <ul className="p-6 flex flex-col gap-4">
-                {filteredSampah.map((s) => {
-                  return (
-                    <li
-                      key={s.sampah_id}
-                      className="rounded-md p-4 bg-slate-100 cursor-pointer"
-                      onClick={(e) => {
-                        setIsSampahModalOpen(false);
-                        const newSampah = [...sampah].filter((samp) => samp.sampah_id !== s.sampah_id);
-                        setSampah(newSampah);
-                        filterSampah("", newSampah);
-                        setSearchQuery("");
+              <ul className="space-y-4 max-h-[50vh] overflow-y-auto">
+                {filteredSampah.map((s) => (
+                  <li
+                    key={s.sampah_id}
+                    onClick={() => {
+                      setIsSampahModalOpen(false);
+                      const newSampah = sampah.filter((samp) => samp.sampah_id !== s.sampah_id);
+                      setSampah(newSampah);
+                      filterSampah("", newSampah);
+                      setSearchQuery("");
 
-                        const newTransaksi: TransaksiItem[] = [{ jumlahSampah: 0, kuantitasInventory: s.kuantitas, sampahId: s.sampah_id, nama: s.nama_sampah }, ...transaksi];
-                        setTransaksi(newTransaksi);
-
-                        // const newTransaksi = [{ sampahId: s.sampah_id, jumlahSampah: 0, namaSampah: s.nama_sampah }, ...transaksi];
-                        // setTransaksi(newTransaksi);s
-                      }}
-                    >
-                      <div className="grid grid-cols-2">
-                        <div>
-                          <p>{s.nama_sampah}</p>
-                          <p>{s.nama_suk}</p>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className="px-10 grid grid-cols-2">
-                <p>Total Transaksi : </p>
-                {/* <p>{calculateTotal(selectedTransaksiSampah)}</p> */}
-              </div>
-            </div>
-          </div>
-        </>
-      ) : null}
-
-      <table className="w-full">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="p-3 text-left">Id Sampah</th>
-            <th className="p-3 text-left">Nama</th>
-            <th className="p-3 text-left">Jumlah</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transaksi?.map((t, i) => {
-            return (
-              <tr
-                className="border-b"
-                key={t.sampahId}
-              >
-                <td className="p-3">{t.sampahId}</td>
-                <td className="p-3">{t.nama}</td>
-                <td className="p-3">
-                  <input
-                    type="number"
-                    value={t.jumlahSampah}
-                    onChange={(e) => {
-                      const newTransaksi = [...transaksi];
-                      newTransaksi[i].jumlahSampah = Number(e.target.value);
+                      const newTransaksi: TransaksiItem[] = [
+                        { 
+                          jumlahSampah: 0, 
+                          kuantitasInventory: s.kuantitas, 
+                          sampahId: s.sampah_id, 
+                          nama: s.nama_sampah 
+                        }, 
+                        ...transaksi
+                      ];
                       setTransaksi(newTransaksi);
                     }}
-                    max={t.kuantitasInventory}
-                  />
-                  <span>Tersedia : {t.kuantitasInventory}</span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      {/* Table transaksi end */}
-      <button
-        onClick={() => handleSubmit()}
-        className="btn"
-      >
-        Save
-      </button>
+                    className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-gray-800">{s.nama_sampah}</p>
+                        <p className="text-gray-600">{s.nama_suk}</p>
+                      </div>
+                      <p className="text-gray-500">Stok: {s.kuantitas}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-export default TransaksiKeluarPage;
