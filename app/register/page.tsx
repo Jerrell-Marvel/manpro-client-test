@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+ import Link from 'next/link';
+
 
 type Kecamatan = {
   kec_id: number;
@@ -82,94 +84,14 @@ export default function Register() {
 
   return (
     <>
-      {/* <div>
-        <button onClick={() => console.log(selectedKecamatan)}>click kec</button>
-        <button onClick={() => console.log(selectedKelurahan)}>click kel</button>
-        <form onSubmit={(e) => handleSubmit(e)}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="text"
-            name="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-          />
-
-          <label htmlFor="no-hp">No HP</label>
-          <input
-            id="no-hp"
-            type="text"
-            name="noHp"
-            onChange={(e) => setNoHp(e.target.value)}
-            value={noHp}
-          />
-
-          <label htmlFor="alamat">Alamat</label>
-          <input
-            id="alamat"
-            type="text"
-            name="alamat"
-            onChange={(e) => setAlamat(e.target.value)}
-            value={alamat}
-          />
-
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="noHp"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-          />
-
-          <label htmlFor="kecamatan">Kecamatan</label>
-          <select
-            name="kecamatan"
-            id="kecamatan"
-            onChange={(e) => {
-              setSelectedKecamatan(Number(e.target.value));
-            }}
-          >
-            {kecamatan?.map((kec) => {
-              return (
-                <option
-                  value={kec.kec_id}
-                  key={kec.kec_id}
-                >
-                  {kec.nama_kec}
-                </option>
-              );
-            })}
-          </select>
-
-          <label htmlFor="kelurahan">kelurahan</label>
-          <select
-            name="kelurahan"
-            id="kelurahan"
-            value={selectedKelurahan}
-            onChange={(e) => setSelectedKelurahan(Number(e.target.value))}
-          >
-            {kelurahan?.map((kel) => {
-              return (
-                <option
-                  value={kel.kel_id}
-                  key={kel.kel_id}
-                >
-                  {kel.nama_kel}
-                </option>
-              );
-            })}
-          </select>
-
-          <input type="submit" />
-        </form>
-      </div> */}
-
-      <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-96 fade-in">
-          <h1 className="text-2xl font-bold text-center mb-4">Buat Akun</h1>
+     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
+         <div className="bg-white shadow-lg rounded-lg p-8 w-96 fade-in">
+            <Link href="/">
+                <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded mb-4">
+                  Home
+              </button>
+            </Link>
+           <h1 className="text-2xl font-bold text-center mb-4">Buat Akun</h1>
           <form onSubmit={(e) => handleSubmit(e)}>
             <div className="mb-4">
               <label
@@ -330,7 +252,7 @@ export default function Register() {
             </button>
           </form>
         </div>
-      </div>
+     </div>
     </>
   );
 }
