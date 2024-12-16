@@ -8,6 +8,9 @@ import axios from 'axios';
 import { formatToRupiah } from '@/utils/formatter';
 import { getToken } from '@/utils/getToken';
 import Image from 'next/image';
+import { Eye, CalendarRange } from "lucide-react";
+import Line from '@/app/components/Line';
+
 
 type Sampah = {
     sampah_id: number;
@@ -38,6 +41,10 @@ export default function ClientDashboard() {
     const [setoranList, setSetoranList] = useState<Setoran[]>([]);
     const [totalPendapatan, setTotalPendapatan] = useState<number>(0);
     const [pendapatanPerJenis, setPendapatanPerJenis] = useState<{ [jenis: string]: number }>({});
+    const [selectedTransaksiSampah, setSelectedTransaksiSampah] = useState<TransaksiSampah[]>();
+    const [startDate, setStartDate] = useState<string | null>(null);
+    const [endDate, setEndDate] = useState<string | null>(null);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         router.push("/login");
@@ -68,7 +75,11 @@ export default function ClientDashboard() {
           {
             headers: {
               Authorization: `Bearer ${getToken()}`
-            }
+            },
+              params: {
+              start: startDate,
+              end: endDate,
+            },
           }
           );
           setSetoranList(response.data);
@@ -79,12 +90,22 @@ export default function ClientDashboard() {
       }
 
         fetchSetoran();
-    }, [])
+    }, [startDate, endDate])
+
+       //fungsi untuk update query param
+       const updateQueryParam = (params: { start?: string; end?: string }) => {
+        if (params.start) {
+            setStartDate(params.start)
+        }
+        if (params.end) {
+             setEndDate(params.end)
+         }
+    };
     //fungsi untuk kalkulasi total pendapatan dan per jenis sampah
     const calculatePendapatan = (setoranList: Setoran[]) => {
        let total = 0;
        const perJenis: { [jenis: string]: number } = {};
-    
+
       for(const setoran of setoranList) {
           for(const sampah of setoran.transaksiSampah) {
             const subtotal = sampah.jumlah_sampah * sampah.harga_sampah
@@ -101,6 +122,13 @@ export default function ClientDashboard() {
        setPendapatanPerJenis(perJenis);
 
     }
+     const calculateTotal = (transaksiSampah: TransaksiSampah[]): number => {
+        let total = 0;
+        transaksiSampah.forEach((ts) => {
+        total += ts.jumlah_sampah * ts.harga_sampah;
+        });
+        return total;
+    };
     return (
       <>
         {/* Header */}
@@ -171,45 +199,130 @@ export default function ClientDashboard() {
            )}
            {/* END MODAL */}
 
+            {/* START MODAL */}
+            {selectedTransaksiSampah && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+                        <div className="bg-gray-100 p-6 flex justify-between items-center">
+                            <h2 className="text-2xl font-semibold text-gray-800">Detail Transaksi</h2>
+                            <button
+                                onClick={() => setSelectedTransaksiSampah(undefined)}
+                                className="text-gray-600 hover:text-gray-900 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <Line />
+
+                        <div className="p-6">
+                            <ul className="space-y-4 mb-6">
+                                {selectedTransaksiSampah.map((sampah) => (
+                                    <li
+                                        key={sampah.sampah_id}
+                                        className="bg-gray-50 rounded-lg p-4 flex justify-between items-center"
+                                    >
+                                        <div>
+                                            <p className="font-medium text-gray-800">{sampah.nama_sampah}</p>
+                                            <p className="text-gray-600">Jumlah: {sampah.jumlah_sampah}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-semibold">{formatToRupiah(sampah.harga_sampah * sampah.jumlah_sampah)}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div className="flex justify-between border-t pt-4 font-semibold">
+                                <p>Total Transaksi</p>
+                                <p>{formatToRupiah(calculateTotal(selectedTransaksiSampah))}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* END MODAL */}
+
+
           <section id="deposit-history" className="mb-20">
             <h2 className="text-2xl font-bold mb-4">Riwayat Deposit Limbah</h2>
-                {/* Riwayat Setoran */}
-                 <div className="space-y-4">
+              <div className="bg-white shadow-md rounded-lg">
+                <div className="p-6 bg-gray-50 rounded-t-lg">
+                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-white border rounded-lg p-2">
+                      <CalendarRange size={20} className="text-gray-500" />
+                      <input
+                        type="date"
+                        id="date-start"
+                        value={startDate || ""}
+                          onChange={(e) => {
+                            updateQueryParam({ start: e.target.value });
+                           }}
+                        className="text-gray-700 focus:outline-none"
+                      />
+                    </div>
+                    <p className="text-gray-600">Sampai</p>
+                    <div className="flex items-center gap-2 bg-white border rounded-lg p-2">
+                      <CalendarRange size={20} className="text-gray-500" />
+                      <input
+                        type="date"
+                        id="date-end"
+                           value={endDate || ""}
+                          onChange={(e) => {
+                            updateQueryParam({ end: e.target.value });
+                           }}
+                        className="text-gray-700 focus:outline-none"
+                      />
+                    </div>
+                </div>
+            </div>
+              {/* Riwayat Setoran */}
+              <table className="w-full">
+                <thead className="bg-gray-100 border-b">
+                    <tr>
+                        <th className="p-4 text-left text-gray-600 font-semibold">ID Transaksi</th>
+                        <th className="p-4 text-left text-gray-600 font-semibold">Tanggal</th>
+                        <th className="p-4 text-left text-gray-600 font-semibold">Total</th>
+                         <th className="p-4 text-left text-gray-600 font-semibold">Aksi</th>
+                    </tr>
+                </thead>
+               <tbody>
                     {setoranList.map((setoran) => (
-                        <div key={setoran.transaksi_masuk_id} className="bg-white p-4 rounded-lg shadow-md">
-                                <h3 className="font-bold text-gray-800">Transaksi ID: {setoran.transaksi_masuk_id}</h3>
-                                <p className="text-gray-600">Tanggal: {setoran.tanggal}</p>
-                                <div className="mt-2">
-                                  <h4 className="font-semibold text-gray-700">Detail Sampah:</h4>
-                                    <ul className="list-disc list-inside">
-                                         {setoran.transaksiSampah.map((s) => (
-                                         <li key={s.sampah_id} className="text-gray-600">
-                                            {s.nama_sampah} ({formatToRupiah(s.harga_sampah)}) x {s.jumlah_sampah}
-                                         </li>
-                                      ))}
-                                  </ul>
-                                </div>
-                                 <p className="mt-2 font-semibold text-green-600">Total: {formatToRupiah(setoran.transaksiSampah.reduce((total, item) => total + (item.jumlah_sampah * item.harga_sampah), 0))}</p>
-                        </div>
-                    ))}
-                 </div>
+                        <tr key={setoran.transaksi_masuk_id} className="border-b hover:bg-gray-50">
+                            <td className="p-4 text-gray-800">{setoran.transaksi_masuk_id}</td>
+                            <td className="p-4 text-gray-600">{setoran.tanggal}</td>
+                            <td className="p-4 text-green-600 font-semibold">{formatToRupiah(calculateTotal(setoran.transaksiSampah))}</td>
+                            <td className="p-4 text-gray-600">
+                                 <button
+                                    onClick={() => setSelectedTransaksiSampah(setoran.transaksiSampah)}
+                                    className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors"
+                                >
+                                 <Eye size={16} />
+                                 Detail
+                            </button>
+                            </td>
+                        </tr>
+                     ))}
+                 </tbody>
+             </table>
+             </div>
 
           </section>
 
           <section id="income-report">
             <h2 className="text-2xl font-bold mb-4">Laporan Masukan</h2>
-             <div className="bg-white p-6 rounded-lg shadow-md">
-                <p className="mb-4">Total pendapatan dari deposit limbah: <strong>{formatToRupiah(totalPendapatan)}</strong></p>
-                 <p className="mb-4">Pendapatan dari deposit berdasarkan jenis sampah:</p>
-                    <ul className="list-disc list-inside">
-                        {Object.entries(pendapatanPerJenis).map(([jenis, total]) => (
-                            <li key={jenis}>
-                             {jenis}: {formatToRupiah(total)}
-                           </li>
-                        ))}
-                    </ul>
-                </div>
-           </section>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <p className="mb-4">Total pendapatan dari deposit limbah: <strong>{formatToRupiah(totalPendapatan)}</strong></p>
+              <p className="mb-4">Pendapatan dari deposit berdasarkan jenis sampah:</p>
+              <ul className="list-disc list-inside">
+                {Object.entries(pendapatanPerJenis).map(([jenis, total]) => (
+                  <li key={jenis}>
+                    {jenis}: {formatToRupiah(total)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
         </main>
 
         {/* Footer */}
