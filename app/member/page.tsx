@@ -8,9 +8,8 @@ import axios from 'axios';
 import { formatToRupiah } from '@/utils/formatter';
 import { getToken } from '@/utils/getToken';
 import Image from 'next/image';
-import { Eye, CalendarRange } from "lucide-react";
+import { Eye, CalendarRange, Search } from "lucide-react";
 import Line from '@/app/components/Line';
-
 
 type Sampah = {
     sampah_id: number;
@@ -38,12 +37,14 @@ export default function ClientDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSampah, setSelectedSampah] = useState<Sampah | null>(null);
     const [sampahList, setSampahList] = useState<Sampah[]>([]);
+    const [filteredSampahList, setFilteredSampahList] = useState<Sampah[]>([]);
     const [setoranList, setSetoranList] = useState<Setoran[]>([]);
     const [totalPendapatan, setTotalPendapatan] = useState<number>(0);
     const [pendapatanPerJenis, setPendapatanPerJenis] = useState<{ [jenis: string]: number }>({});
     const [selectedTransaksiSampah, setSelectedTransaksiSampah] = useState<TransaksiSampah[]>();
     const [startDate, setStartDate] = useState<string | null>(null);
     const [endDate, setEndDate] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState<string>("");
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -59,6 +60,7 @@ export default function ClientDashboard() {
           try {
             const response = await axios.get<Sampah[]>("http://localhost:5000/api/sampah");
             setSampahList(response.data);
+            setFilteredSampahList(response.data);
           } catch (error) {
             console.error("Failed to fetch sampah:", error);
           }
@@ -66,6 +68,20 @@ export default function ClientDashboard() {
 
         fetchSampah();
       }, []);
+
+      //handle search function
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        
+         const filtered = sampahList.filter((sampah) =>
+            query === "" ||
+            sampah.nama_sampah.toLowerCase().includes(query.toLowerCase())
+        );
+
+        setFilteredSampahList(filtered);
+     };
+
 
     //fetch riwayat setoran
     useEffect(() => {
@@ -151,10 +167,23 @@ export default function ClientDashboard() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-10">
           <section id="purchase-prices" className="mb-20">
-            <h2 className="text-2xl font-bold mb-4">Daftar Sampah</h2>
+            <h2 className="text-2xl font-bold mb-4 flex justify-between items-center">
+                <span>Daftar Sampah</span>
+                 <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Cari jenis sampah"
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="w-full p-2 pl-10 border rounded focus:outline-none"
+                      />
+                      <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                </div>
+
+            </h2>
             {/* Daftar Sampah */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sampahList.map((sampah) => (
+                {filteredSampahList.map((sampah) => (
                     <div key={sampah.sampah_id} className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-between">
                         <div>
                             <Image src={`http://localhost:5000/${sampah.url_gambar}`} alt={sampah.nama_sampah} width={200} height={160} className="w-full h-40 object-cover rounded-md mb-2"/>
@@ -199,7 +228,7 @@ export default function ClientDashboard() {
            )}
            {/* END MODAL */}
 
-            {/* START MODAL */}
+          {/* START MODAL */}
             {selectedTransaksiSampah && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
