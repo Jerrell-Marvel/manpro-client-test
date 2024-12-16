@@ -33,17 +33,12 @@ export default async function Home() {
             >
               Kontak
             </a>
+            {/* Ganti dua tombol login dengan satu tombol login */}
             <a
-              href="/admin"
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+             href="/login"
+             className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
             >
-              Login sebagai Admin
-            </a>
-            <a
-              href="/member"
-              className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded"
-            >
-              Login sebagai Member
+              Login
             </a>
           </nav>
         </div>
@@ -139,7 +134,7 @@ export default async function Home() {
       </section>
 
       <footer className="bg-gray-800 text-white py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center">&copy; 2024 Sistem Informasi Bank Sampah. All rights reserved.</div>
+        <div className="max-w-7xl mx-auto px-4 text-center">© 2024 Sistem Informasi Bank Sampah. All rights reserved.</div>
       </footer>
     </>
   );
