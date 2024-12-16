@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import axios from "axios";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Router } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from 'next/link';
+
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -33,27 +34,6 @@ export default function Login() {
 
   return (
     <>
-      {/* <form>
-        <label htmlFor="email">Email</label>
-        <input
-          type="text"
-          id="email"
-          value={email}
-          onChange={handleEmailChange}
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={handlePasswordChange}
-        />
-
-        <input type="submit" />
-      </form> */}
-
-      {/* HERE */}
       <div className="bg-gray-100 flex items-center justify-center min-h-screen">
         <div className="bg-white shadow-lg rounded-lg p-8 w-96 fade-in">
           <h1 className="text-2xl font-bold text-center mb-4">Selamat datang di Sistem Informasi Bank Sampah</h1>
@@ -105,12 +85,12 @@ export default function Login() {
           </form>
           <p className="text-center text-sm text-gray-500 mt-4">
             Belum punya Akun?
-            <a
-              href="member-signup.html"
+             <Link
+              href="/register"
               className="text-green-500 hover:underline"
             >
-              Sign up
-            </a>
+               Sign up
+            </Link>
           </p>
         </div>
       </div>
