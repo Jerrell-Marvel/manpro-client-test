@@ -1,11 +1,20 @@
+"use client";
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function adminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Hapus token
+    router.push("/login"); // Redirect ke halaman login
+  };
+
   return (
     <Suspense>
     <div className="flex">
@@ -78,6 +87,9 @@ export default function adminLayout({
                 Transaksi Keluar
               </Link>
             </li>
+             <li onClick={handleLogout}>
+                <button className="block py-2 hover:bg-green-500 rounded text-left">Logout</button>
+              </li>
           </ul>
         </nav>
       </aside>
