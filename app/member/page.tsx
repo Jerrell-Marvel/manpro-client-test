@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { formatToRupiah } from '@/utils/formatter';
 import { getToken } from '@/utils/getToken';
+import Image from 'next/image';
 
 type Sampah = {
     sampah_id: number;
@@ -52,10 +53,9 @@ export default function ClientDashboard() {
             setSampahList(response.data);
           } catch (error) {
             console.error("Failed to fetch sampah:", error);
-            
           }
         };
-    
+
         fetchSampah();
       }, []);
 
@@ -106,7 +106,7 @@ export default function ClientDashboard() {
                 {sampahList.map((sampah) => (
                     <div key={sampah.sampah_id} className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-between">
                         <div>
-                            <img src={sampah.url_gambar} alt={sampah.nama_sampah} className="w-full h-40 object-cover rounded-md mb-2"/>
+                            <Image src={`http://localhost:5000/${sampah.url_gambar}`} alt={sampah.nama_sampah} width={200} height={160} className="w-full h-40 object-cover rounded-md mb-2"/>
                             <h3 className="text-lg font-medium text-gray-800 mb-1">{sampah.nama_sampah}</h3>
                            <p className="text-gray-600">Harga : {formatToRupiah(sampah.harga_sampah)}</p>
                         </div>
@@ -136,7 +136,7 @@ export default function ClientDashboard() {
                         {selectedSampah &&
                         (
                             <>
-                                 <img src={selectedSampah.url_gambar} alt={selectedSampah.nama_sampah} className="w-full h-60 object-cover rounded-md mb-4"/>
+                                 <Image src={`http://localhost:5000/${selectedSampah.url_gambar}`} alt={selectedSampah.nama_sampah} width={300} height={240} className="w-full h-60 object-cover rounded-md mb-4"/>
                                  <p>Nama : {selectedSampah.nama_sampah}</p>
                                 <p>Harga: {formatToRupiah(selectedSampah.harga_sampah)}</p>
                              </>
