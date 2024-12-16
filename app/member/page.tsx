@@ -36,7 +36,8 @@ export default function ClientDashboard() {
     const [selectedSampah, setSelectedSampah] = useState<Sampah | null>(null);
     const [sampahList, setSampahList] = useState<Sampah[]>([]);
     const [setoranList, setSetoranList] = useState<Setoran[]>([]);
-
+    const [totalPendapatan, setTotalPendapatan] = useState<number>(0);
+    const [pendapatanPerJenis, setPendapatanPerJenis] = useState<{ [jenis: string]: number }>({});
     const handleLogout = () => {
         localStorage.removeItem("token");
         router.push("/login");
@@ -71,6 +72,7 @@ export default function ClientDashboard() {
           }
           );
           setSetoranList(response.data);
+          calculatePendapatan(response.data);
         } catch (error) {
             console.error("Failed to fetch setoran", error);
         }
@@ -78,6 +80,27 @@ export default function ClientDashboard() {
 
         fetchSetoran();
     }, [])
+    //fungsi untuk kalkulasi total pendapatan dan per jenis sampah
+    const calculatePendapatan = (setoranList: Setoran[]) => {
+       let total = 0;
+       const perJenis: { [jenis: string]: number } = {};
+    
+      for(const setoran of setoranList) {
+          for(const sampah of setoran.transaksiSampah) {
+            const subtotal = sampah.jumlah_sampah * sampah.harga_sampah
+            total += subtotal;
+             if (perJenis[sampah.nama_sampah]) {
+                perJenis[sampah.nama_sampah] += subtotal;
+              } else {
+                perJenis[sampah.nama_sampah] = subtotal;
+              }
+          }
+        }
+
+       setTotalPendapatan(total);
+       setPendapatanPerJenis(perJenis);
+
+    }
     return (
       <>
         {/* Header */}
@@ -175,15 +198,18 @@ export default function ClientDashboard() {
 
           <section id="income-report">
             <h2 className="text-2xl font-bold mb-4">Laporan Masukan</h2>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="mb-4">Total pendapatan dari deposit limbah: <strong>Rp. 1500</strong></p>
-              <p className="mb-4">Pendapatan dari deposit pada Januari 2023:</p>
-              <ul className="list-disc list-inside">
-                <li>Plastic: Rp. 1000</li>
-                <li>Glass: Rp. 500</li>
-              </ul>
-            </div>
-          </section>
+             <div className="bg-white p-6 rounded-lg shadow-md">
+                <p className="mb-4">Total pendapatan dari deposit limbah: <strong>{formatToRupiah(totalPendapatan)}</strong></p>
+                 <p className="mb-4">Pendapatan dari deposit berdasarkan jenis sampah:</p>
+                    <ul className="list-disc list-inside">
+                        {Object.entries(pendapatanPerJenis).map(([jenis, total]) => (
+                            <li key={jenis}>
+                             {jenis}: {formatToRupiah(total)}
+                           </li>
+                        ))}
+                    </ul>
+                </div>
+           </section>
         </main>
 
         {/* Footer */}
