@@ -218,26 +218,6 @@ const AdminDashboard = () => {
                                   </BarChart>
                              </ResponsiveContainer>
                          </div>
-        
-                        <div className="bg-white p-4 rounded-lg shadow-md">
-                           <h3 className="text-lg font-semibold mb-2">Jenis Sampah Terbanyak</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                     <PieChart width={400} height={400} >
-                                      <Pie
-                                        dataKey="total"
-                                        isAnimationActive={false}
-                                       data={dataSampah}
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        label
-                                    />
-                                      <Tooltip />
-                                      <Legend />
-                                      </PieChart>
-                                  </ResponsiveContainer>
-                          </div>
                         <div className="bg-white p-4 rounded-lg shadow-md">
                             <h3 className="text-lg font-semibold mb-2">Item Terbanyak di Inventory</h3>
                                 <ResponsiveContainer width="100%" height={300}>
