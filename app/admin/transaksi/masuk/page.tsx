@@ -31,14 +31,46 @@ type TransaksiMasuk = {
   transaksiSampah: TransaksiSampah[];
 };
 
+
+type Pengguna = {
+    pengguna_id: number;
+    password: string;
+    no_hp: string;
+    alamat: string;
+    email: string;
+    role: 'admin' | 'pengguna';
+    kel_id: number;
+    nama: string;
+};
+
+
 export default function TransaksiMasuk() {
   const [transaksi, setTransaksi] = useState<TransaksiMasuk[]>();
-  const [selectedTransaksiSampah, setSelectedTransaksiSampah] = useState<TransaksiSampah[]>();
+    const [pengguna, setPengguna] = useState<Pengguna[]>([]);
+    const [selectedTransaksiSampah, setSelectedTransaksiSampah] = useState<TransaksiSampah[]>();
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [startDate, setStartDate] = useState<string | null>(searchParams.get("start"));
   const [endDate, setEndDate] = useState<string | null>(searchParams.get("end"));
+
+    useEffect(() => {
+        const fetchPengguna = async () => {
+          try {
+            const { data } = await axios.get<Pengguna[]>("http://localhost:5000/api/users", {
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+            });
+            setPengguna(data);
+          } catch (error) {
+            console.error("Error fetching users:", error);
+          }
+        };
+
+        fetchPengguna();
+    }, []);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,6 +109,13 @@ export default function TransaksiMasuk() {
     });
     return total;
   };
+
+  const getUserName = (userId: number | undefined): string => {
+        if (!userId) return "Unknown";
+      
+        const user = pengguna?.find((u) => u.pengguna_id === userId);
+        return user ? user.nama : "Unknown";
+    }
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -182,7 +221,7 @@ export default function TransaksiMasuk() {
             {transaksi?.map((t) => (
               <tr key={t.transaksi_masuk_id} className="border-b hover:bg-gray-50 transition-colors">
                 <td className="p-4 text-gray-800">{t.transaksi_masuk_id}</td>
-                <td className="p-4 text-gray-800">{t.pengguna_id}</td>
+                 <td className="p-4 text-gray-800">{getUserName(t.pengguna_id)}</td>
                 <td className="p-4 font-semibold text-green-700">
                   {formatToRupiah(calculateTotal(t.transaksiSampah))}
                 </td>
